@@ -16,7 +16,7 @@ script:
     main_file: $GAMEDIR/win31x.conf
   installer:
   - execute:
-      args: $GAMEDIR/DISKS $GAMEDIR/DRIVE_C $GAMEDIR/SETUP $GAMEDIR/MOUNT
+      args: $GAMEDIR/DISKS $GAMEDIR/DRIVE_C $GAMEDIR/SETUP
       file: mkdir
 
   - extract:
@@ -24,50 +24,29 @@ script:
       file: win3floppies
       format: 7z
 
-  - execute:
-      command: 'sudo -A mount $GAMEDIR/DISKS/DISK1.IMG $GAMEDIR/MOUNT'
-  - execute:
-      command: 'cp $GAMEDIR/MOUNT/* $GAMEDIR/SETUP'
-  - execute:
-      command: 'sudo -A umount $GAMEDIR/DISKS/DISK1.IMG'
+  - write_file:
+      file: $GAMEDIR/extract-disks.sh
+      content: "#!/bin/bash
 
-  - execute:
-      command: 'sudo -A mount $GAMEDIR/DISKS/DISK2.IMG $GAMEDIR/MOUNT'
-  - execute:
-      command: 'cp $GAMEDIR/MOUNT/* $GAMEDIR/SETUP'
-  - execute:
-      command: 'sudo -A umount $GAMEDIR/DISKS/DISK2.IMG'
+for ((i=1;i<=6;i++));
 
-  - execute:
-      command: 'sudo -A mount $GAMEDIR/DISKS/DISK3.IMG $GAMEDIR/MOUNT'
-  - execute:
-      command: 'cp $GAMEDIR/MOUNT/* $GAMEDIR/SETUP'
-  - execute:
-      command: 'sudo -A umount $GAMEDIR/DISKS/DISK3.IMG'
+do
 
-  - execute:
-      command: 'sudo -A mount $GAMEDIR/DISKS/DISK4.IMG $GAMEDIR/MOUNT'
-  - execute:
-      command: 'cp $GAMEDIR/MOUNT/* $GAMEDIR/SETUP'
-  - execute:
-      command: 'sudo -A umount $GAMEDIR/DISKS/DISK4.IMG'
+  loop=`udisksctl loop-setup --file $GAMEDIR/DISKS/DISK$i.IMG --read-only --no-user-interaction | cut -d' ' -f5 | cut -d. -f1`
 
-  - execute:
-      command: 'sudo -A mount $GAMEDIR/DISKS/DISK5.IMG $GAMEDIR/MOUNT'
-  - execute:
-      command: 'cp $GAMEDIR/MOUNT/* $GAMEDIR/SETUP'
-  - execute:
-      command: 'sudo -A umount $GAMEDIR/DISKS/DISK5.IMG'
+	cp /media/$LOGNAME/MSWIN311$i/* $GAMEDIR/SETUP
 
-  - execute:
-      command: 'sudo -A mount $GAMEDIR/DISKS/DISK6.IMG $GAMEDIR/MOUNT'
-  - execute:
-      command: 'cp $GAMEDIR/MOUNT/* $GAMEDIR/SETUP'
-  - execute:
-      command: 'sudo -A umount $GAMEDIR/DISKS/DISK6.IMG'
+	udisksctl unmount -b $loop;
 
+done;
+
+"
+
+  - chmodx: $GAMEDIR/extract-disks.sh
+  
   - execute:
-      command: 'rmdir $GAMEDIR/MOUNT'
+      file: $GAMEDIR/extract-disks.sh
+
   - execute:
       command: 'mkdir $GAMEDIR/DRIVE_C/WIN31'
   - execute:
@@ -274,6 +253,7 @@ c:
   - task:
       name: dosexec
       config_file: $GAMEDIR/win31x-setup.conf
+      
   - execute:
       command: 'echo SET PATH=%PATH%;C:\WINDOWS; >> $GAMEDIR/win31x-base.conf'
   - execute:
@@ -286,6 +266,3 @@ c:
       command: 'echo win >> $GAMEDIR/win31x.conf'
   - execute:
       command: 'echo exit >> $GAMEDIR/win31x.conf'
-  - execute:
-      command: 'cp $GAMEDIR
-
