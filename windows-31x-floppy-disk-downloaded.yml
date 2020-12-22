@@ -1,0 +1,291 @@
+name: Windows 3.1x
+game_slug: windows-31x
+game_id: 26784
+user: TanGuy4
+year: 1992
+version: Floppy Disks Downloaded
+description: A Vanilla Installation.
+notes: The Floppies are automacally download from winworld pc library. And their content are extracted. Setup requires user intervention (when dosbox opens hisself).
+slug: windows-31x-floppy-disk-downloaded
+runner: dosbox
+
+script:
+  files:
+  - win3floppies: https://winworldpc.com/download/c2b4244e-e280-bae2-80b9-0a11c3a4c2ac/from/c39ac2af-c381-c2bf-1b25-11c3a4e284a2
+  game:
+    main_file: $GAMEDIR/win31x.conf
+  installer:
+  - execute:
+      args: $GAMEDIR/DISKS $GAMEDIR/DRIVE_C $GAMEDIR/SETUP $GAMEDIR/MOUNT
+      file: mkdir
+
+  - extract:
+      dst: $GAMEDIR/DISKS
+      file: win3floppies
+      format: 7z
+
+  - execute:
+      command: 'sudo -A mount $GAMEDIR/DISKS/DISK1.IMG $GAMEDIR/MOUNT'
+  - execute:
+      command: 'cp $GAMEDIR/MOUNT/* $GAMEDIR/SETUP'
+  - execute:
+      command: 'sudo -A umount $GAMEDIR/DISKS/DISK1.IMG'
+
+  - execute:
+      command: 'sudo -A mount $GAMEDIR/DISKS/DISK2.IMG $GAMEDIR/MOUNT'
+  - execute:
+      command: 'cp $GAMEDIR/MOUNT/* $GAMEDIR/SETUP'
+  - execute:
+      command: 'sudo -A umount $GAMEDIR/DISKS/DISK2.IMG'
+
+  - execute:
+      command: 'sudo -A mount $GAMEDIR/DISKS/DISK3.IMG $GAMEDIR/MOUNT'
+  - execute:
+      command: 'cp $GAMEDIR/MOUNT/* $GAMEDIR/SETUP'
+  - execute:
+      command: 'sudo -A umount $GAMEDIR/DISKS/DISK3.IMG'
+
+  - execute:
+      command: 'sudo -A mount $GAMEDIR/DISKS/DISK4.IMG $GAMEDIR/MOUNT'
+  - execute:
+      command: 'cp $GAMEDIR/MOUNT/* $GAMEDIR/SETUP'
+  - execute:
+      command: 'sudo -A umount $GAMEDIR/DISKS/DISK4.IMG'
+
+  - execute:
+      command: 'sudo -A mount $GAMEDIR/DISKS/DISK5.IMG $GAMEDIR/MOUNT'
+  - execute:
+      command: 'cp $GAMEDIR/MOUNT/* $GAMEDIR/SETUP'
+  - execute:
+      command: 'sudo -A umount $GAMEDIR/DISKS/DISK5.IMG'
+
+  - execute:
+      command: 'sudo -A mount $GAMEDIR/DISKS/DISK6.IMG $GAMEDIR/MOUNT'
+  - execute:
+      command: 'cp $GAMEDIR/MOUNT/* $GAMEDIR/SETUP'
+  - execute:
+      command: 'sudo -A umount $GAMEDIR/DISKS/DISK6.IMG'
+
+  - execute:
+      command: 'rmdir $GAMEDIR/MOUNT'
+  - execute:
+      command: 'mkdir $GAMEDIR/DRIVE_C/WIN31'
+  - execute:
+      command: 'cp $GAMEDIR/SETUP/* $GAMEDIR/DRIVE_C/WIN31'
+
+  - write_file:
+      file: $GAMEDIR/win31x-base.conf
+      content: '[sdl]
+      
+fullscreen=false
+
+fulldouble=false
+
+fullresolution=original
+
+windowresolution=original
+
+output=surface
+
+autolock=true
+
+sensitivity=100
+
+waitonerror=true
+
+priority=higher,normal
+
+mapperfile=mapper-0.74-3.map
+
+usescancodes=true
+
+
+
+[dosbox]
+
+language=
+
+machine=svga_s3
+
+captures=capture
+
+memsize=63
+
+
+
+[render]
+
+frameskip=0
+
+aspect=false
+
+scaler=normal2x
+
+
+
+[cpu]
+
+core=auto
+
+cputype=auto
+
+cycles=auto
+
+cycleup=10
+
+cycledown=20
+
+
+
+[mixer]
+
+nosund=false
+
+rate=44100
+
+blocksize=1024
+
+prebuffer=25
+
+
+
+[midi]
+
+mpu401=intelligent
+
+mididevice=default
+
+midiconfig=
+
+
+
+[sblaster]
+
+sbtype=sb16
+
+sbbase=220
+
+irq=7
+
+dma=1
+
+hdma=5
+
+sbmixer=true
+
+oplmode=auto
+
+oplemu=default
+
+oplrate=44100
+
+
+
+[gus]
+
+gus=false
+
+gusrate=44100
+
+gusbase=240
+
+gusirq=5
+
+gusdma=3
+
+ultradir=C:\ULTRASND
+
+
+
+[speaker]
+
+pcspeaker=true
+
+pcrate=44100
+
+tandy=auto
+
+tandyrate=44100
+
+disney=true
+
+
+
+[joystick]
+
+joysticktype=auto
+
+timed=true
+
+autofire=false
+
+swap34=false
+
+buttonwrap=false
+
+
+
+[serial]
+
+serial1=dummy
+
+serial2=dummy
+
+serial3=disabled
+
+serial4=disabled
+
+
+
+[dos]
+
+xms=true
+
+ems=true
+
+umb=true
+
+keyboardlayout=auto
+
+
+
+[ipx]
+
+ipx=false
+
+
+
+[autoexec]
+
+mount c $GAMEDIR/DRIVE_C
+
+c:
+
+'
+
+  - execute:
+      command: 'cp $GAMEDIR/win31x-base.conf $GAMEDIR/win31x-setup.conf'
+  - execute:
+      command: 'echo cd WIN31 >> $GAMEDIR/win31x-setup.conf'
+  - execute:
+      command: 'echo setup.exe >> $GAMEDIR/win31x-setup.conf'
+  - execute:
+      command: 'echo exit >> $GAMEDIR/win31x-setup.conf'
+  - task:
+      name: dosexec
+      config_file: $GAMEDIR/win31x-setup.conf
+  - execute:
+      command: 'echo SET PATH=%PATH%;C:\WINDOWS; >> $GAMEDIR/win31x-base.conf'
+  - execute:
+      command: 'echo SET TEMP=C:\WINDOWS\TEMP; >> $GAMEDIR/win31x-base.conf'
+  - execute:
+      command: 'cp $GAMEDIR/win31x-base.conf $GAMEDIR/win31x.conf'
+  - execute:
+      command: 'echo cd windows >> $GAMEDIR/win31x.conf'
+  - execute:
+      command: 'echo win >> $GAMEDIR/win31x.conf'
+  - execute:
+      command: 'echo exit >> $GAMEDIR/win31x.conf'
+  - execute:
+      command: 'cp $GAMEDIR
+
